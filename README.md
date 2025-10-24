@@ -34,3 +34,30 @@ Only sentences **longer than 50 tokens** were included, as longer sequences tend
 ---
 
 ## Repository Structure
+├── pilot_data/
+│   ├── filtered_fi.en      # English-Finnish bilingual subset (1k pairs)
+│   ├── filtered_fi.fi
+│   ├── filtered_et.en      # English-Estonian bilingual subset (1k pairs)
+│   ├── filtered_et.et
+├── tokenizer_scripts/
+│   ├── tokenize_bpe.py
+│   ├── tokenize_obpe.py
+│   ├── tokenize_unigram.py
+├── README.md
+
+---
+
+## Next Steps
+1. Train and apply each tokenizer to the pilot dataset.  
+2. Compare vocabulary sizes, subword distributions, and token-per-sentence ratios.  
+3. Evaluate the impact on translation quality metrics (e.g., BLEU, COMET).
+
+---
+
+## License
+This repository uses publicly available ELRC data (ELRC-2709-EMEA).  
+Ensure compliance with ELRC’s data-sharing and citation guidelines when using or redistributing the data.
+
+---
+
+
