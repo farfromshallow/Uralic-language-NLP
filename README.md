@@ -34,17 +34,19 @@ Only sentences **longer than 50 tokens** were included, as longer sequences tend
 ---
 
 ## Repository Structure
+
+```
 ├── pilot_data/
-│   ├── filtered_fi.en      # English-Finnish bilingual subset (1k pairs)
+│   ├── filtered_fi.en      # English–Finnish bilingual subset (1k pairs)
 │   ├── filtered_fi.fi
-│   ├── filtered_et.en      # English-Estonian bilingual subset (1k pairs)
+│   ├── filtered_et.en      # English–Estonian bilingual subset (1k pairs)
 │   ├── filtered_et.et
 ├── tokenizer_scripts/
 │   ├── tokenize_bpe.py
 │   ├── tokenize_obpe.py
 │   ├── tokenize_unigram.py
 ├── README.md
-
+```
 ---
 
 ## Next Steps
