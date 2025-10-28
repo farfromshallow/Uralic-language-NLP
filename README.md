@@ -10,7 +10,7 @@ The goal is to analyze how different tokenizers influence sentence segmentation 
 ---
 
 ## Tokenizers Compared
-- **BPE (Byte Pair Encoding)**:  <https://github.com/github/rust-gems>
+- **BPE (Byte Pair Encoding)**
 - **OBPE (Overlap BPE)**:  <https://github.com/Vaidehi99/OBPE>
 - **Unigram**
 
@@ -37,10 +37,20 @@ Only sentences **longer than 50 tokens** were included, as longer sequences tend
 
 ```
 ├── pilot_data/
-│   ├── filtered_fi.en      # English–Finnish bilingual subset (1k pairs)
-│   ├── filtered_fi.fi
-│   ├── filtered_et.en      # English–Estonian bilingual subset (1k pairs)
-│   ├── filtered_et.et
+│   ├── elrc_medicine_domain
+│     ├── ELRC-EMEA_1k.en-fi.en      # English–Finnish bilingual subset (1k pairs)
+│     ├── ELRC-EMEA_1k.en-fi.fi
+│     ├── ELRC-EMEA_1k.en-et.en      # English–Estonian bilingual subset (1k pairs)
+│     ├── ELRC-EMEA_1k.en-et.et
+│   ├── wmt24pp_news_domain
+│     ├── wmt24pp_1k.en-fi.en      # English–Finnish WMT24 ++ (1k pairs)
+│     ├── wmt24pp_1k.en-fi.fi
+│     ├── wmt24pp_1k.en-et.en      # English–Estonian WMT24 ++ (1k pairs)
+│     ├── wmt24pp_1k.en-et.et
+├── downstrem_tasks_data/
+│   ├── task1_keeper
+│     ├── dataset_keeper
+│   ├── task2_keeper
 ├── tokenizer_scripts/
 │   ├── tokenize_bpe.py
 │   ├── tokenize_obpe.py
