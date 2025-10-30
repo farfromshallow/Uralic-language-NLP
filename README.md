@@ -43,10 +43,10 @@ Only sentences **longer than 50 tokens** were included, as longer sequences tend
 │     ├── ELRC-EMEA_1k.en-et.en      # English–Estonian bilingual subset (1k pairs)
 │     ├── ELRC-EMEA_1k.en-et.et
 │   ├── wmt24pp_news_domain
-│     ├── wmt24pp_1k.en-fi.en      # English–Finnish WMT24 ++ (1k pairs)
-│     ├── wmt24pp_1k.en-fi.fi
-│     ├── wmt24pp_1k.en-et.en      # English–Estonian WMT24 ++ (1k pairs)
-│     ├── wmt24pp_1k.en-et.et
+│     ├── wmt24pp.en-fi.en      # English–Finnish WMT24 ++ (1k pairs)
+│     ├── wmt24pp.en-fi.fi
+│     ├── wmt24pp.en-et.en      # English–Estonian WMT24 ++ (1k pairs)
+│     ├── wmt24pp.en-et.et
 ├── downstrem_tasks_data/
 │   ├── task1_keeper
 │     ├── dataset_keeper
