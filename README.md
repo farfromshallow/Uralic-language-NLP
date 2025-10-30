@@ -43,21 +43,56 @@ Only sentences **longer than 50 tokens** were included, as longer sequences tend
 │     ├── ELRC-EMEA_1k.en-et.en      # English–Estonian bilingual subset (1k pairs)
 │     ├── ELRC-EMEA_1k.en-et.et
 │   ├── wmt24pp_news_domain
-│     ├── wmt24pp.en-fi.en      # English–Finnish WMT24 ++ (1k pairs)
+│     ├── wmt24pp.en-fi.en      # English–Finnish WMT24++ (998 rows)
 │     ├── wmt24pp.en-fi.fi
-│     ├── wmt24pp.en-et.en      # English–Estonian WMT24 ++ (1k pairs)
+│     ├── wmt24pp.en-et.en      # English–Estonian WMT24++ (998 rows)
 │     ├── wmt24pp.en-et.et
+│   ├── tokenized_data
+│     ├── ELRC-EMEA_1k.bpe.et      # ELRC-EMEA datasets tokenization output
+│     ├── ELRC-EMEA_1k.unigram.et
+│     ├── ELRC-EMEA_1k.obpe.et
+│     ├── ELRC-EMEA_1k.bpe.fi
+│     ├── ELRC-EMEA_1k.unigram.fi
+│     ├── ELRC-EMEA_1k.obpe.fi
+│     ├── wmt24pp.bpe.et      # WMT24++ tokenization output
+│     ├── wmt24pp.unigram.et
+│     ├── wmt24pp.obpe.et
+│     ├── wmt24pp.bpe.fi
+│     ├── wmt24pp.unigram.fi
+│     ├── wmt24pp.obpe.fi
 ├── downstrem_tasks_data/
 │   ├── task1_keeper
 │     ├── dataset_keeper
 │   ├── task2_keeper
 ├── tokenizer_scripts/
-│   ├── tokenize_bpe.py
-│   ├── tokenize_obpe.py
-│   ├── tokenize_unigram.py
+│   ├── tokenizer_bpe_unigram.py
 ├── README.md
 ```
 ---
+
+### Unigram and BPE Tokenization Script
+
+A flexible tokenizer script `tokenizer_bpe_unigram.py` can train and apply both **BPE** and **Unigram** tokenizers. Users can specify input files, output files, model prefix, vocabulary size, and tokenizer type directly via command-line arguments. This allows seamless experimentation without modifying the script for different datasets.
+
+**Usage Examples:**
+
+```bash
+# Unigram tokenization
+python tokenizer_scripts/tokenizer_bpe_unigram.py \
+  --tokenizer unigram \
+  --input pilot_data/wmt24pp.en-et.et \
+  --output pilot_data/wmt24pp.unigram.en-et \
+  --model_prefix unigram_model \
+  --vocab_size 5000
+
+# BPE tokenization
+python tokenizer_scripts/tokenizer_bpe_unigram.py \
+  --tokenizer bpe \
+  --input pilot_data/wmt24pp.en-fi.fi \
+  --output pilot_data/wmt24pp.bpe.en-fi \
+  --model_prefix bpe_model \
+  --vocab_size 5000
+```
 
 ## Next Steps
 1. Train and apply each tokenizer to the pilot dataset.  
@@ -67,8 +102,18 @@ Only sentences **longer than 50 tokens** were included, as longer sequences tend
 ---
 
 ## License
-This repository uses publicly available ELRC data (ELRC-2709-EMEA).  
-Ensure compliance with ELRC’s data-sharing and citation guidelines when using or redistributing the data.
+
+This repository contains publicly available datasets:
+
+- **ELRC-2709-EMEA**: Bilingual corpus from the European Medicines Agency (EN–FI / EN–ET).  
+- **WMT24++ (en-et / en-fi)**: Publicly available parallel datasets from the WMT24 News Translation task.
+
+Ensure that you comply with the respective data-sharing and citation guidelines when using, redistributing, or publishing results based on these datasets.  
+
+- For **ELRC-EMEA**, see [ELRC-SHARE](https://www.elrc-share.eu).  
+- For **WMT24++**, refer to the [WMT24 dataset license and terms](https://www.statmt.org/wmt24/translation-task.html).
+
+No proprietary data from this repository may be redistributed beyond the usage permissions granted by the original dataset licenses.
 
 ---
 
