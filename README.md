@@ -111,7 +111,7 @@ This repository contains publicly available datasets:
 Ensure that you comply with the respective data-sharing and citation guidelines when using, redistributing, or publishing results based on these datasets.  
 
 - For **ELRC-EMEA**, see [ELRC-SHARE](https://www.elrc-share.eu).  
-- For **WMT24++**, refer to the [WMT24 dataset license and terms](https://www.statmt.org/wmt24/translation-task.html).
+- For **WMT24++**, refer to the [WMT24 dataset license and terms]([https://www.statmt.org/wmt24/translation-task.html](https://www2.statmt.org/wmt24/translation-task.html#_acknowledgements)).
 
 No proprietary data from this repository may be redistributed beyond the usage permissions granted by the original dataset licenses.
 
