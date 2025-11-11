@@ -1,4 +1,10 @@
-#!/usr/bin/env python3
+"""
+python tokenizer_scripts/tokenizer_standardizer.py standardize-obpe \
+  --subwords path/to/subwords \
+  --output_prefix output_prefix \
+  --output_dir ./path/to/output_directory
+"""
+
 import os
 import re
 import argparse
@@ -7,27 +13,33 @@ def clean_bpe(line: str) -> str:
     """
     Standardize BPE tokenization.
     Keeps underscores (▁) as word boundaries and ensures single spacing.
+    Removes whitespace right after separator ▁.
     """
     line = line.strip()
     line = re.sub(r"\s+", " ", line)
+    # Remove whitespace right after ▁ separator
+    line = re.sub(r"▁\s+", "▁", line)
     return line
 
 def clean_unigram(line: str) -> str:
     """
     Standardize Unigram tokenization.
     Removes redundant whitespace and preserves SentencePiece underscores.
+    Removes whitespace right after separator ▁.
     """
     line = line.strip()
     line = re.sub(r"\s+", " ", line)
+    # Remove whitespace right after ▁ separator
+    line = re.sub(r"▁\s+", "▁", line)
     return line
 
 def clean_obpe(line: str) -> str:
     """
     Standardize OBPE tokenization.
-    Removes </w> markers and replaces with consistent spacing.
+    Normalize whitespace.
+    Keep </w> markers alignment.
     """
     line = line.strip()
-    line = re.sub(r"</w>", "", line)  # remove OBPE word-end marker
     line = re.sub(r"\s+", " ", line)
     return line
 
@@ -52,7 +64,7 @@ def standardize_file(input_path: str, output_path: str, tokenizer_type: str):
     with open(output_path, "w", encoding="utf-8") as fout:
         fout.write("\n".join(lines) + "\n")
 
-    print(f"✅ Standardized file saved at: {output_path}")
+    print(f"Standardized file saved at: {output_path}")
     print(f"   → Total sentences: {len(lines)}\n")
 
 def main():
