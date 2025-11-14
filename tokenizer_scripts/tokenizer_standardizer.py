@@ -9,6 +9,10 @@ import os
 import re
 import argparse
 
+# Compile regex patterns once
+WHITESPACE_PATTERN = re.compile(r"\s+")
+SEPARATOR_WHITESPACE_PATTERN = re.compile(r"▁\s+")
+
 def clean_bpe(line: str) -> str:
     """
     Standardize BPE tokenization.
@@ -16,9 +20,8 @@ def clean_bpe(line: str) -> str:
     Removes whitespace right after separator ▁.
     """
     line = line.strip()
-    line = re.sub(r"\s+", " ", line)
-    # Remove whitespace right after ▁ separator
-    line = re.sub(r"▁\s+", "▁", line)
+    line = WHITESPACE_PATTERN.sub(" ", line)
+    line = SEPARATOR_WHITESPACE_PATTERN.sub("▁", line)
     return line
 
 def clean_unigram(line: str) -> str:
@@ -28,9 +31,8 @@ def clean_unigram(line: str) -> str:
     Removes whitespace right after separator ▁.
     """
     line = line.strip()
-    line = re.sub(r"\s+", " ", line)
-    # Remove whitespace right after ▁ separator
-    line = re.sub(r"▁\s+", "▁", line)
+    line = WHITESPACE_PATTERN.sub(" ", line)
+    line = SEPARATOR_WHITESPACE_PATTERN.sub("▁", line)
     return line
 
 def clean_obpe(line: str) -> str:
@@ -40,7 +42,7 @@ def clean_obpe(line: str) -> str:
     Keep </w> markers alignment.
     """
     line = line.strip()
-    line = re.sub(r"\s+", " ", line)
+    line = WHITESPACE_PATTERN.sub(" ", line)
     return line
 
 def standardize_file(input_path: str, output_path: str, tokenizer_type: str):

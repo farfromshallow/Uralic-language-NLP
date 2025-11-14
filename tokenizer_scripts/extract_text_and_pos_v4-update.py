@@ -9,39 +9,47 @@ def precise_punctuation_separation(text, language='finnish'):
     # Step 1: Protect patterns that should not be separated
     if language == 'finnish':
         # Protect Finnish number+colon+case ending patterns (e.g., 4:stä)
-        text = re.sub(r'(\d+):([a-zA-ZäöåÄÖÅ]+)', r'FINNISH_NUM_COLON_\1_COLON_\2', text) # comment: add word boundary
+        text = re.sub(r'\b(\d+):([a-zA-ZäöåÄÖÅ]+)\b', r'FINNISH_NUM_COLON_\1_COLON_\2', text)
 
+    ##########################################################################################
     if language == 'estonian':
         # Protect Estonian words with apostrophes (e.g., Google'isse, Homasho't)
-        text = re.sub(r"([A-Za-z]+)(['\u2019])([a-z]+)", r"APOSTROPHE_PROTECTED_\1_APOSTROPHE_\3", text) # comment: doesn't cover all apostrophes
+        text = re.sub(r"([A-Za-zäöüõÄÖÜÕ]+)(['\u2019])([a-zA-ZäöüõÄÖÜÕ]+)",
+                      r"APOSTROPHE_PROTECTED_\1_APOSTROPHE_\3", text)
+    
     # Compound words (e.g., cha-cha)
     text = re.sub(r'(\w+)-(\w+)', r'COMPOUND_\1_HYPHEN_\2', text)
+    
     # Numbers (e.g., 100-200, -30, 1,000, 30:n)
-    text = re.sub(r'(-?\d+)-(\d+)', r'NUMBER_\1_HYPHEN_\2', text) # comment: to consider word boundaries
-    text = re.sub(r'(-?\d+),(\d+)', r'NUMBER_\1_COMMA_\2', text)
-    text = re.sub(r'(-?\d+):(\d+)', r'NUMBER_\1_COLON_\2', text)
-    # Ellipsis (e.g., ...)
-    text = re.sub(r'\.{2,}', 'ELLIPSIS_PROTECTED', text) # comment: include more unicodes
+    text = re.sub(r'\b(-?\d+)-(\d+)\b', r'NUMBER_\1_HYPHEN_\2', text)
+    text = re.sub(r'\b(-?\d+),(\d+)\b', r'NUMBER_\1_COMMA_\2', text)
+    text = re.sub(r'\b(-?\d+):(\d+)\b', r'NUMBER_\1_COLON_\2', text)
+    
+    # Ellipsis (e.g., ..., …)
+    text = re.sub(r'\.{2,}|\u2026', 'ELLIPSIS_PROTECTED', text)
     
     # Step 2: Separate punctuation that should be independent
-    # Separate different punctuation marks when they appear together
-    # This ensures ), ." etc. are separated
-    text = re.sub(r'([)\]"\'`])([.,!?;:(])', r'\1 \2', text)  # Close then open punctuation
-    text = re.sub(r'([.,!?;:)])([\]"\'`])', r'\1 \2', text)  # Open then close punctuation # comment: redundant
+    # Handle combinations of different punctuation types
+    # Close punctuation followed by sentence-ending punctuation
+    text = re.sub(r'([)\]"\'`\u201d\u2019\u00bb])([.,!?;:])', r'\1 \2', text)
+    # Sentence-ending punctuation followed by open punctuation
+    text = re.sub(r'([.,!?;:])([(\["\'`\u201c\u2018\u00ab])', r'\1 \2', text)
     
-    # Sentence-level punctuation
-    text = re.sub(r'([.!?;:])(?=\s|$)', r' \1', text)  # Add space after, not before
+    # Sentence-level punctuation (add space before, not after to avoid double spacing)
+    text = re.sub(r'([.!?;:])(?=\s|$)', r' \1', text)
 
     # Handle different types of quotation marks
-    # Curly quotes and other Unicode quotation marks
-    text = re.sub(r'(["\'\u201c\u201d\u2018\u2019\u00ab\u00bb])', r' \1 ', text)  # All types of quotes
+    text = re.sub(r'(["\'\u201c\u201d\u2018\u2019\u00ab\u00bb])', r' \1 ', text)
     
-    # Brackets and quotation marks
-    text = re.sub(r'([()"\'`])', r' \1 ', text)
-    # Comma (except in numbers)
-    text = re.sub(r',(?=\s|$)', r', ', text)  # Add space after, not before
+    # Brackets
+    text = re.sub(r'([()])', r' \1 ', text)
+    
+    # Comma (except in numbers - already protected)
+    text = re.sub(r',(?=\s|$)', r' , ', text)
+    
     # Dash (except in compound words and numbers)
-    text = re.sub(r'(?<=\s)-(?=\s|$)', r' - ', text)  # Only separate standalone dashes
+    text = re.sub(r'(?<=\s)-(?=\s|$)', r' - ', text)
+    #################################################################################
     
     # Step 3: Restore protected patterns
     if language == 'finnish':
