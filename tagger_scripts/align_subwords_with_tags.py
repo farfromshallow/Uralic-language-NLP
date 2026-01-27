@@ -1,8 +1,8 @@
 '''
 python tagger_scripts/align_subwords_with_tags.py \
-  --subwords path/to/subwords \
-  --tags path/to/tags \
-  --output path/to/output \
+  --subwords /Users/Ingrid/Uralic-language-NLP/pilot_data/ud_data/subwords/et-et_test.unigram \
+  --tags /Users/Ingrid/Uralic-language-NLP/pilot_data/ud_data/tags/et_train.tags \
+  --output /Users/Ingrid/Uralic-language-NLP/pilot_data/ud_data/aligned/etet_train_bpe.conllu \
   --tokenizer_type bpe/unigram/obpe
 
 '''
@@ -37,7 +37,7 @@ def extract_punct_surface(token: str, tokenizer_type: str) -> Optional[str]:
         return None
 
     if tokenizer_type in {"bpe", "unigram"}:
-        if token.startswith('▁'):
+        if token.startswith('▁'):  # U+2581
             raw = token[1:]
             if raw and is_unicode_punct(raw):
                 return raw

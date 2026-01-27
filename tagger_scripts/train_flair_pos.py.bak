@@ -1,0 +1,233 @@
+'''
+python tagger_scripts/train_flair_pos.py \
+    --data_dir ./pilot_data/ud_data/aligned_json \
+    --train_file sme_train_bpe_aligned_v3.json \
+    --dev_file sme_dev_bpe_aligned_v3.json \
+    --test_file sme_test_bpe_aligned_v3.json \
+    --eval_only \
+    --model_path models/flair_pos/bpe/sme/best-model.pt \
+    --model_dir ./models/flair_pos/bpe/sme \
+    --embeddings trainable \
+    --seed 42
+
+'''
+import torch
+import flair
+import argparse
+import sys
+import random
+import numpy as np
+import json
+import os
+from flair.data import Corpus
+from flair.datasets import ColumnCorpus
+from flair.embeddings import WordEmbeddings, StackedEmbeddings, OneHotEmbeddings, TransformerWordEmbeddings
+from flair.models import SequenceTagger
+from flair.trainers import ModelTrainer
+from pathlib import Path
+from flair.training_utils import EvaluationMetric
+from flair.data import Sentence
+  --model_path models/flair_pos/bpe/sme/best-model.pt
+  --model_dir ./models/flair_pos/bpe/smeimport argparse
+
+# hardware setup
+if torch.backends.mps.is_available():
+    device = torch.device("mps")
+    print("Using Mac M1 GPU (MPS acceleration)")
+else:
+    device = torch.device("cpu")
+    print("MPS not available. Using CPU.")
+
+def set_seed(seed):
+    """Set seeds for reproducibility across BPE/Unigram/OBPE runs"""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    flair.set_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
+
+def load_json_to_flair_list(json_file):
+    with open(json_file, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+        
+    sentences_list = []  # Mechanism of Flair requires list of sentence objects
+    # catche
+    current_tokens = []
+    current_tags = []
+    
+    for item in data:
+        # item: {"subwords": ["He", "llo"], "train_labels": ["PROPN", "<PAD>"], "orig_word": "Hello"}
+        subwords = item['subwords']
+        tags = item['train_labels']
+        orig_word = item['orig_word']
+        for sub, tag in zip(subwords, tags):
+            # filter padding # optional
+            if sub == "<PAD>": continue
+            
+            current_tokens.append(sub)
+            current_tags.append(tag)
+        
+        # boundary detection
+        is_boundary = item['orig_word'] in ['.', '!', '?', '...'] 
+        
+        if is_boundary or len(current_tokens) > 256: 
+            if current_tokens:
+                # Flair Sentence objects
+                sentence = Sentence(current_tokens, use_tokenizer=False)
+                
+                # assign tags to tokens
+                for token, tag in zip(sentence, current_tags):
+                    token.add_label('upos', tag)
+                
+                sentences_list.append(sentence)
+            
+            # Reset
+            current_tokens = []
+            current_tags = []
+            
+    # leftovers
+    if current_tokens:
+        sentence = Sentence(current_tokens, use_tokenizer=False)
+        for token, tag in zip(sentence, current_tags):
+            token.add_label('upos', tag)
+        sentences_list.append(sentence)
+        
+    return sentences_list
+
+
+def train_flair_pos():
+    parser = argparse.ArgumentParser()
+    #data arguments
+    parser.add_argument('--data_dir', type=str, required=True, help='Directory containing conllu files')
+    parser.add_argument('--train_file', type=str, default='train.conllu')
+    parser.add_argument('--dev_file', type=str, default='dev.conllu')
+    parser.add_argument('--test_file', type=str, default='test')
+    # eval only
+    parser.add_argument("--eval_only", action="store_true")
+    parser.add_argument("--model_path", type=str)
+
+    # Experiment arguments
+    parser.add_argument('--model_dir', type=str, required=True, help='Directory to save model')
+    parser.add_argument('--seed', type=int, default=42, help='Random seed for fair comparison')
+    
+    # Modified: Embeddings now default to 'trainable' (OneHot) or a path to a file
+    # model arguments
+    parser.add_argument('--embeddings', type=str, default='trainable', 
+                        help='Options: "trainable" (learns from scratch), or path to custom .gensim/.vec file')
+    
+    parser.add_argument('--hidden_size', type=int, default=256)
+    parser.add_argument('--learning_rate', type=float, default=0.1)
+    parser.add_argument('--max_epochs', type=int, default=150)
+    
+    args = parser.parse_args()
+    
+    #setting seed
+    set_seed(args.seed)
+# --- Step 1: In-Memory Data Loading (No temp files!) ---
+    train_path = os.path.join(args.data_dir, args.train_file)
+    dev_path = os.path.join(args.data_dir, args.dev_file)
+    test_path = os.path.join(args.data_dir, args.test_file)
+
+    # 直接生成 Sentence 对象列表
+    train_sentences = load_json_to_flair_list(train_path)
+    dev_sentences = load_json_to_flair_list(dev_path)
+    test_sentences = load_json_to_flair_list(test_path)
+    
+# Loading corpus
+    # For the conllu file, make sure the format is:
+    # Column 0: Your BPE/Unigram token
+    # Column 1: UPOS tag
+    columns = {0: 'text', 1: 'upos'}
+    # add for tracking
+    print(f"Loading data from {args.data_dir}...")
+    
+    corpus = Corpus(train=train_sentences, dev=dev_sentences, test=test_sentences)
+    
+    print(f"Training set: {len(corpus.train)}")
+    print(f"Dev set: {len(corpus.dev)}")
+    print(f"Test set: {len(corpus.test)}")
+    if args.eval_only:
+        if not args.model_path:
+            print("When --eval_only is set, --model_path must be provided", file=sys.stderr)
+            sys.exit(1)
+        tagger = SequenceTagger.load(args.model_path)
+        result = tagger.evaluate(corpus.test, gold_label_type='upos')
+        print(result.detailed_results)
+        return
+
+
+    # tag dictionary
+    tag_type = 'upos'
+    
+    tag_dictionary = corpus.make_label_dictionary(label_type='upos')
+    print(f"Amount of tags: {len(tag_dictionary)}")
+    print(f"Tags: {tag_dictionary.get_items()}")
+    
+    # define embedding types (Uralic/tokenizerS Adaptation)
+
+    embedding_types = []
+    #Add more types for adaption
+    if args.embeddings == 'trainable':
+        print("Initializing OneHotEmbeddings (Learning vocab from scratch)")
+        # OneHotEmbeddings builds the vocab from the corpus.
+        # We capture the object so we can print the vocab size.
+        vocab_dictionary = corpus.make_vocab_dictionary()
+        one_hot = OneHotEmbeddings(vocab_dictionary)
+        embedding_types.append(one_hot)
+        
+        # LOGGING VOCAB SIZE IS CRITICAL FOR YOUR COMPARISON
+        print(f"Vocab Size: {len(vocab_dictionary)} tokens")
+        
+    elif Path(args.embeddings).exists():
+        print(f"Loading custom embeddings: {args.embeddings}")
+        embedding_types.append(WordEmbeddings(args.embeddings))
+    else:
+        # Fallback or Transformer logic
+        print(f"Using default/Transformer: {args.embeddings}")
+        embedding_types.append(TransformerWordEmbeddings(args.embeddings, fine_tune=True))
+    
+    embeddings = StackedEmbeddings(embeddings=embedding_types)
+
+    # --- Step 4: Train ---
+    # define tagger
+    tagger = SequenceTagger(
+        hidden_size=args.hidden_size,
+        embeddings=embeddings,
+        tag_dictionary=tag_dictionary,
+        tag_type='upos',
+        use_crf=True
+    )
+    
+    # Training step
+    trainer = ModelTrainer(tagger, corpus)
+
+    trainer.train(
+        args.model_dir,
+        learning_rate=args.learning_rate,
+        mini_batch_size=32,
+        max_epochs=args.max_epochs,
+        train_with_dev=False,
+        monitor_test=False,
+        embeddings_storage_mode='none', # M1 optimization
+#        device=device,
+#        num_workers=0
+    )
+
+    # --- Step 5: Final Evaluation ---
+    print("\n--- Final Evaluation on Test Set ---")
+    best_model_path = os.path.join(args.model_dir, "best-model.pt")
+    if os.path.exists(best_model_path):
+        loaded_tagger = SequenceTagger.load(best_model_path)
+        result = loaded_tagger.evaluate(corpus.test, gold_label_type='upos')
+        
+        print(result.detailed_results)
+#        print(f"\nExperiment: {args.experiment_name} (Seed: {args.seed})")
+    else:
+        print("Warning: best-model.pt not found.")
+
+if __name__ == '__main__':
+    train_flair_pos()
