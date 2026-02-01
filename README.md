@@ -1,7 +1,14 @@
 # Tokenization Comparison: Finnish and Estonian
 
 ## Overview
-This project explores the effect of different tokenization methods for two target languages:
+This project explores the effect of different tokenization methods for three target languages:
+language pairs:
+Finnish - Hungarian
+Finnish - North Sami
+Estonian - Hungarian
+Estonian - North Sami
+Russian - Komi Zyrian
+
 - **High-resource:** Finnish  
 - **Low-resource:** Estonian  
 
@@ -18,53 +25,32 @@ Each tokenizer will be applied to the same dataset to ensure fair comparison of 
 
 ---
 
-## Pilot Study Dataset
+## Training set
+### Unigram & BPE
+
+### OBPE
 The pilot experiments use the **ELRC-EMEA** corpus — a bilingual dataset derived from the European Medicines Agency’s PDF documents:
 
 > European Medicines Agency (EMEA)  
 > <https://www.ema.europa.eu>  
 > February 2020 (EN–MT)
 
-Dataset reference:  
-**ELRC-2709-EMEA** (Public dataset distributed via [ELRC-SHARE](https://www.elrc-share.eu))
-
-For each language, **1,000 randomly extracted sentence pairs** were selected.  
-Only sentences **longer than 50 tokens** were included, as longer sequences tend to exhibit more complex grammatical structures.
 
 ---
 
 ## Repository Structure
 
 ```
+├── models/                     # tokenization and POS tagger models
 ├── pilot_data/
-│   ├── elrc_medicine_domain
-│     ├── ELRC-EMEA_1k.en-fi.en      # English–Finnish bilingual subset (1k pairs)
-│     ├── ELRC-EMEA_1k.en-fi.fi
-│     ├── ELRC-EMEA_1k.en-et.en      # English–Estonian bilingual subset (1k pairs)
-│     ├── ELRC-EMEA_1k.en-et.et
-│   ├── wmt24pp_news_domain
-│     ├── wmt24pp.en-fi.en      # English–Finnish WMT24++ (998 rows)
-│     ├── wmt24pp.en-fi.fi
-│     ├── wmt24pp.en-et.en      # English–Estonian WMT24++ (998 rows)
-│     ├── wmt24pp.en-et.et
+│   ├── 
+│   ├── 
 │   ├── tokenized_data
 │     ├── ELRC-EMEA_1k.bpe.et      # ELRC-EMEA datasets tokenization output
-│     ├── ELRC-EMEA_1k.unigram.et
-│     ├── ELRC-EMEA_1k.obpe.et
-│     ├── ELRC-EMEA_1k.bpe.fi
-│     ├── ELRC-EMEA_1k.unigram.fi
-│     ├── ELRC-EMEA_1k.obpe.fi
-│     ├── wmt24pp.bpe.et      # WMT24++ tokenization output
-│     ├── wmt24pp.unigram.et
-│     ├── wmt24pp.obpe.et
-│     ├── wmt24pp.bpe.fi
-│     ├── wmt24pp.unigram.fi
-│     ├── wmt24pp.obpe.fi
-├── downstrem_tasks_data/
+├── tagger_scripts/             # POS tagging and training scripts
 │   ├── task1_keeper
 │     ├── dataset_keeper
-│   ├── task2_keeper
-├── tokenizer_scripts/
+├── tokenizer_scripts/          # tokenization and data processing scripts
 │   ├── tokenizer_bpe_unigram.py
 ├── README.md
 ```

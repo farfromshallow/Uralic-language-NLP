@@ -31,10 +31,10 @@ from flair.data import Sentence
 # hardware setup
 if torch.backends.mps.is_available():
     device = torch.device("mps")
-    print("Using Mac M1 GPU (MPS acceleration)")
+
 else:
     device = torch.device("cpu")
-    print("MPS not available. Using CPU.")
+
 
 def set_seed(seed):
     """Set seeds for reproducibility across BPE/Unigram/OBPE runs"""

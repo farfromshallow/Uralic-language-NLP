@@ -5,7 +5,7 @@ python tagger_scripts/train_bilstm_pos.py \
     --test_file ./pilot_data/ud_data/aligned_json/sme_test_bpe_aligned_v3.json \
     --model_dir ./models/bilstm_pos_bpe/ \
     --epochs 50 \
-    --batch_size 32
+    --batch_size 32 \
     --seed 42
 '''
 # train_bilstm_pos_simple.py
