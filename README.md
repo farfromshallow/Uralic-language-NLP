@@ -42,16 +42,9 @@ The pilot experiments use the **ELRC-EMEA** corpus — a bilingual dataset deriv
 
 ```
 ├── models/                     # tokenization and POS tagger models
-├── pilot_data/
-│   ├── 
-│   ├── 
-│   ├── tokenized_data
-│     ├── ELRC-EMEA_1k.bpe.et      # ELRC-EMEA datasets tokenization output
 ├── tagger_scripts/             # POS tagging and training scripts
-│   ├── task1_keeper
-│     ├── dataset_keeper
 ├── tokenizer_scripts/          # tokenization and data processing scripts
-│   ├── tokenizer_bpe_unigram.py
+├── vocab                       # bpe & unigram vocab 
 ├── README.md
 ```
 ---
@@ -79,11 +72,6 @@ python tokenizer_scripts/tokenizer_bpe_unigram.py \
   --model_prefix bpe_model \
   --vocab_size 5000
 ```
-
-## Next Steps
-1. Train and apply each tokenizer to the pilot dataset.  
-2. Compare vocabulary sizes, subword distributions, and token-per-sentence ratios.  
-3. Evaluate the impact on translation quality metrics (e.g., BLEU, COMET).
 
 ---
 
